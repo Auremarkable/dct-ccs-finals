@@ -1,51 +1,35 @@
 <?php
-// Include functions file to use validation and authentication functions
 require_once('functions.php');
-
-// Protect this page from logged-in users (redirect if already authenticated)
 guard();
 
-// Initialize error variables
 $email = $password = '';
 $emailError = $passwordError = $loginError = '';
 
-// Process form submission when the "Login" button is clicked
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-    
-    // Retrieve and sanitize form inputs
     $email = htmlspecialchars(trim($_POST['email']));
     $password = htmlspecialchars(trim($_POST['password']));
-    
-    // Clean inputs to avoid unwanted characters
     $email = stripcslashes($email);
     $password = stripcslashes($password);
 
-    // Validate the email and password inputs
     $emailError = validateEmail($email);
     $passwordError = validatePassword($password);
 
-    // If there are no validation errors, proceed to authenticate the user
     if (empty($emailError) && empty($passwordError)) {
-        // Connect to the database
         $con = mysqli_connect("localhost", "root", "", "dct-css-finals");
-        
+
         if ($con === false) {
             die("ERROR: Failed to connect to the database. " . mysqli_connect_error());
         }
 
-        // Authenticate the user based on email and password
         $loginError = authenticateUser($email, $password, $con);
-        
-        // Close the database connection after the operation
+
         mysqli_close($con);
     } else {
-        // If there are validation errors, reset the inputs
         $email = '';
         $password = '';
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -60,18 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 <body class="bg-secondary-subtle">
     <div class="d-flex align-items-center justify-content-center vh-100">
         <div class="col-3">
-            <!-- Server-Side Validation Messages should be placed here -->
             <?php if (!empty($emailError) || !empty($passwordError) || !empty($error)): ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <strong>Error:</strong>
-                            <ul class="mb-0">
-                                <?php if (!empty($emailError)) echo "<li>$emailError</li>"; ?>
-                                <?php if (!empty($passwordError)) echo "<li>$passwordError</li>"; ?>
-                                <?php if (!empty($error)) echo "<li>$error</li>"; ?>
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    <?php endif; ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error:</strong>
+                    <ul class="mb-0">
+                        <?php if (!empty($emailError)) echo "<li>$emailError</li>"; ?>
+                        <?php if (!empty($passwordError)) echo "<li>$passwordError</li>"; ?>
+                        <?php if (!empty($error)) echo "<li>$error</li>"; ?>
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
             <div class="card">
                 <div class="card-body">
                     <h1 class="h3 mb-4 fw-normal">Login</h1>
