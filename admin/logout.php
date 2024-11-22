@@ -1,8 +1,5 @@
 <?php
-
-session_start();
-session_unset();  // Clear all session variables
-session_destroy(); // Destroy the session
-header('Location: ../index.php'); // Redirect to the home page
-exit(); // Ensure the script stops after redirection
+    require '../functions.php';
+    $indexPage = '../index.php';
+    logout($indexPage);
 ?>
