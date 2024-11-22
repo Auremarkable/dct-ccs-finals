@@ -1,23 +1,34 @@
 <?php
 
+DEFINE("DB_SERVER", "localhost");
+DEFINE("DB_USERNAME", "root");
+DEFINE("DB_PASSWORD", "");
+DEFINE("DB_NAME", "dct-ccs-finals");
 // Start the session if not already started
+
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
-// Function to guard pages that should not be accessed by logged-in users
-function guard(){   
-    $dashboard = 'admin/dashboard.php';
-    if(isset($_SESSION['email'])){
-        header("Location: $dashboard");
-    } 
+function OpenConnection(){
+    $con = mysqli_connect(DB_SERVER , DB_USERNAME , DB_PASSWORD , DB_NAME);
+    if ($con == false) {
+        die("ERROR: Could not connect" . mysqli_connect_error());
+        return $con;
+    }
 }
 
-// Function to validate email
+function CloseConnection(){
+    $con = mysqli_connect(DB_SERVER , DB_USERNAME , DB_PASSWORD , DB_NAME);
+    mysqli_close($con);
+}
+
+
+
 function validateEmail($email) {
     if (empty($email)) {
         return "Email is required.";
-        header('Location: index.php');
+        header('Location: Index.php');
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return "Invalid email.";
     }
@@ -50,7 +61,7 @@ function authenticateUser($email, $password, $con) {
         if (mysqli_num_rows($result) > 0) {
             // Redirect to the dashboard if user exists
             $_SESSION['email'] = $email; // Set session variable for email
-            header('Location: admin/Dashboard.php');
+            header('Location: admin/dashboard.php');
             mysqli_free_result($result);
             exit;
         } else {
@@ -61,15 +72,21 @@ function authenticateUser($email, $password, $con) {
     }
 }
 
-// Function to guard authenticated pages (like dashboard) 
 function dashboardguard(){
     $loginPage = '../index.php';
     if(!isset($_SESSION['email'])){
         header("Location: $loginPage");
     }
 }
+// Function to guard pages that should not be accessed by logged-in users
+function guard(){   
+    $dashboard = 'admin/dashboard.php';
+    if(isset($_SESSION['email'])){
+        header("Location: $dashboard");
+    } 
+}
 
-// Function to log out the user and destroy the session
+
 function logout($indexPage) {
     // Unset the 'email' session variable
     unset($_SESSION['email']);
@@ -81,5 +98,5 @@ function logout($indexPage) {
     header("Location: $indexPage");
     exit;
 }
-
 ?>
+

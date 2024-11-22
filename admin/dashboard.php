@@ -1,13 +1,9 @@
-
 <?php 
-require_once '../functions.php';
-$logoutRedirect = 'logout.php';
-
-include './partials/header.php';
-include './partials/side-bar.php';
-?>
-
-<!-- Template Files here -->
+require '../functions.php';
+$logoutPage = 'logout.php';
+require './partials/header.php';
+require './partials/side-bar.php';
+ ?>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-5">    
     <h1 class="h2">Dashboard</h1>        
     
@@ -47,3 +43,7 @@ include './partials/side-bar.php';
     </div>    
 </main>
 <!-- Template Files here -->
+<?php
+    require './partials/footer.php';
+
+ ?>

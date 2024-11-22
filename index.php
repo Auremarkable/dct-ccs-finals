@@ -1,33 +1,30 @@
 <?php
 require_once('functions.php');
 guard();
+if (isset($_POST['login'])) {
 
-$email = $password = '';
-$emailError = $passwordError = $loginError = '';
+    $con = OpenConnection();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-    $email = htmlspecialchars(trim($_POST['email']));
-    $password = htmlspecialchars(trim($_POST['password']));
+    $email = htmlspecialchars($_POST['email']);
+    $password = htmlspecialchars($_POST['password']);
+
     $email = stripcslashes($email);
     $password = stripcslashes($password);
 
     $emailError = validateEmail($email);
     $passwordError = validatePassword($password);
 
+    $error = '';
+    $con = mysqli_connect(DB_SERVER , DB_USERNAME , DB_PASSWORD , DB_NAME);
     if (empty($emailError) && empty($passwordError)) {
-        $con = mysqli_connect("localhost", "root", "", "dct-css-finals");
-
-        if ($con === false) {
-            die("ERROR: Failed to connect to the database. " . mysqli_connect_error());
-        }
-
-        $loginError = authenticateUser($email, $password, $con);
-
-        mysqli_close($con);
-    } else {
-        $email = '';
-        $password = '';
+        // If no validation errors, attempt authentication
+        $error = authenticateUser($email, $password, $con);
     }
+    else
+        $email = '';
+        $password = ''; 
+
+    CloseConnection($con);
 }
 ?>
 
@@ -44,17 +41,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 <body class="bg-secondary-subtle">
     <div class="d-flex align-items-center justify-content-center vh-100">
         <div class="col-3">
+            <!-- Server-Side Validation Messages should be placed here -->
             <?php if (!empty($emailError) || !empty($passwordError) || !empty($error)): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>Error:</strong>
-                    <ul class="mb-0">
-                        <?php if (!empty($emailError)) echo "<li>$emailError</li>"; ?>
-                        <?php if (!empty($passwordError)) echo "<li>$passwordError</li>"; ?>
-                        <?php if (!empty($error)) echo "<li>$error</li>"; ?>
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Error:</strong>
+                            <ul class="mb-0">
+                                <?php if (!empty($emailError)) echo "<li>$emailError</li>"; ?>
+                                <?php if (!empty($passwordError)) echo "<li>$passwordError</li>"; ?>
+                                <?php if (!empty($error)) echo "<li>$error</li>"; ?>
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <?php endif; ?>
             <div class="card">
                 <div class="card-body">
                     <h1 class="h3 mb-4 fw-normal">Login</h1>
